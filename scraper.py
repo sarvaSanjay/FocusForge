@@ -26,14 +26,17 @@ for soup in course_soups:
         links = soup.find_all('a')
         pre_names = []
         for link in links:
-            pre_names.append(re.findall('>(.+)<', str(link))[0])
-        pre_req_list.append(pre_names)
+            name = re.findall('>(.+)<', str(link))[0]
+            if len(name) == 8:
+                pre_names.append(name)
+        if len(pre_names) != 0:
+            pre_req_list.append(pre_names)
 
     pre_reqs.append(pre_req_list)
 
 # for pre_req in pre_reqs[0:500]:
 #     print(pre_req)
-with open('course_preeqs.txt', 'w') as f:
+with open('course_preeqs_cleaned.txt', 'w') as f:
     for pre_req in pre_reqs:
         f.write(str(pre_req) + '\n')
 print(course_names[:100])
