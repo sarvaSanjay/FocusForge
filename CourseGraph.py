@@ -6,11 +6,11 @@ from focus import _Course
 
 class Graph:
     courses: dict[str, _Course]
-    edges: set[tuple[_Course, _Course]]
+    prereqs: set[tuple[_Course, _Course]]
 
     def __init__(self) -> None:
         self.courses = {}
-        self.edges = set()
+        self.prereqs = set()
         with open('course-data.csv', 'r') as f:
             reader = csv.DictReader(f=f, delimiter=';')
             for row in reader:
@@ -25,10 +25,10 @@ class Graph:
                     prereq_set = {self.courses[code] for code in prereq_code_set if code in self.courses}
                     self.courses[row['code']].prereqs.append(prereq_set)
                     for pre_req in prereq_set:
-                        self.edges.add((self.courses[row['code']], pre_req))
+                        self.prereqs.add((self.courses[row['code']], pre_req))
 
 
 if __name__ == '__main__':
     graph = Graph()
     print('hi')
-    print(len(graph.edges))
+    print(len(graph.prereqs))
