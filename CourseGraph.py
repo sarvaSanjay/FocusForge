@@ -3,7 +3,7 @@ import ast
 import csv
 
 import re
-from main_question_mark import _Course
+from focus import _Course
 
 class Graph:
     courses: dict[str, _Course]
