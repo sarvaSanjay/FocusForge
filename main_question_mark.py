@@ -2,6 +2,7 @@ from __future__ import annotations
 class _Course():
     course_code: str
     name: str
+    # ERROR: At least read the proposal. The prereqs are list of sets of courses because some prereqs have multiple options. Like MAT137/ MAT157 but not both.
     prereqs: set[_Course]
     credits: float
 
@@ -9,6 +10,7 @@ class _Course():
         self.course_code = code
         self.name = name
         self.prereqs = prereqs
+        # ERROR: Do 'Y1' instead of 'Y' cos course codes like PSY270H1 exist.
         if 'Y' in self.course_code:
             self.credits = 1.0
         else:
@@ -24,6 +26,7 @@ class _Course():
 
 class Focus():
     name: str
+    # ERROR: You cannot do set of set. Sets are unhashable. We need to work on this.
     course_reqs = set[set[_Course]] #top  level prereqs
     credits_req = float
     program_code = str
@@ -32,6 +35,7 @@ class Focus():
         self.name = name
         self.course_reqs = courses_reqs
         self.credits_req = credits_req
+        # QUESTION: What exactly do you mean by program_code?
         self.program_code = program_code
 
     def credits_left(self, completed: set[_Course]) -> float:
