@@ -8,6 +8,7 @@ class Graph:
     courses: dict[str, _Course]
     prereqs: set[tuple[_Course, _Course]]
 
+# can we make it so that the file names aren't hard coded
     def __init__(self) -> None:
         self.courses = {}
         self.prereqs = set()
