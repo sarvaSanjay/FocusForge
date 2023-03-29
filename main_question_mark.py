@@ -1,5 +1,6 @@
 from __future__ import annotations
 import math  # maybe we can work on a simplar solution later? Maybe not?
+import csv
 
 
 class _Course():
@@ -31,7 +32,7 @@ class Focus():
     credits_req = float
     program_code = str  # the long string of alphabets that nobody really cares about. like ASFOC1689F
 
-    def __init__(self, name: str, courses_reqs: set[set[_Course]], credits_req: float, program_code: str):
+    def __init__(self, name: str, courses_reqs: list[set[_Course]], credits_req: float, program_code: str):
         self.name = name
         self.course_reqs = courses_reqs
         self.credits_req = credits_req
@@ -49,10 +50,83 @@ class Focus():
         min = math.inf
         for path in total_prereqs:
             if sum(course.credits for course in path if course not in completed) < min:
-                min = sum(course.credits for course in path)
+                min = round(sum(course.credits for course in path), 1)  # avoid weird floating point bugs
         return min
 
 
 def cartesian_product(lst1: list[set], lst2: list[set]) -> list[set]:
     """Returns a cartesian product"""
     return [set1.union(set2) for set1 in lst1 for set2 in lst2]
+
+
+def setup_focus(course_file: str, focus_file: str) -> Focus:
+    courses_dict = {}
+    with open(course_file) as courses_csv:
+        reader = csv.reader(courses_csv, delimiter=';')
+        next(reader)
+        for row in reader:
+            courses_dict[row[0]] = _Course(row[0], row[1], [set()])
+    with open(course_file) as courses_csv:  # prereqs need to be done separately
+        reader = csv.reader(courses_csv, delimiter=';')
+        next(reader)
+        for row in reader: #gtg now, will touch later
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# oshiete oshiete yo sono shikumi wo
+# boku no naka ni dare ga iru no kowareta kowareta yo kono sekai de
+# kimi ga warau nani mo miezu ni
