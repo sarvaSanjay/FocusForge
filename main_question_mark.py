@@ -30,6 +30,7 @@ class Focus():
     name: str
     course_reqs = list[set[_Course]]  # top  level prereqs
     credits_req = float
+    # REDO: That long string of characters is not there for 2 focii so let it be
     program_code = str  # the long string of alphabets that nobody really cares about. like ASFOC1689F
 
     def __init__(self, name: str, courses_reqs: list[set[_Course]], credits_req: float, program_code: str):
@@ -70,63 +71,4 @@ def setup_focus(course_file: str, focus_file: str) -> Focus:
         reader = csv.reader(courses_csv, delimiter=';')
         next(reader)
         for row in reader: #gtg now, will touch later
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# oshiete oshiete yo sono shikumi wo
-# boku no naka ni dare ga iru no kowareta kowareta yo kono sekai de
-# kimi ga warau nani mo miezu ni
+            pass
