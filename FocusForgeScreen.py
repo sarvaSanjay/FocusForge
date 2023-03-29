@@ -2,155 +2,151 @@
 import csv
 from tkinter import *
 from tkinter import ttk
+from python_ta.contracts import check_contracts
+
+root = Tk()
+root.geometry("500x600")
+root.title("FocusForge")
+root.configure(background="#282634")
 
 
-class page_1:
-    """ This class will create a page 1. """
-    # set page 1 as the default page
-    def __init__(self, master):
-        self.master = master
-        self.frame = Frame(self.master)
-        self.frame.pack()
+@check_contracts
+def new_window_tt():
+    """This function will open the Timetable builder page."""
+    listy = set()
+    window = Toplevel(root)
+    window.title("Timetable Builder")
+    window.geometry("500x600")
+    window.configure(background="#282634")
 
-        # set up the GUI
-        self.label = Label(self.frame, text="Welcome to FocusForge")
-        self.label.pack()
+    # create a label to tell the user where they are
+    label = Label(window, text="Timetable builder", bg="#282634", fg="white", font=("Helvetica", 12))
+    label.place(relx=0.5, rely=0.1, anchor=CENTER)
 
-        self.button = Button(self.frame, text="Timetable Builder", command=self.go_to_page_2)
-        self.button.pack()
+    label = Label(window, text="Courses Taken:", bg="#282634", fg="white", font=("Helvetica", 12))
+    label.place(relx=0.5, rely=0.45, anchor=CENTER)
+    # create a drop-down menu
+    courses = read_packet_csv()
+    dropdown = ttk.Combobox(window, values=courses, state="readonly")
+    dropdown.place(relx=0.5, rely=0.3, anchor=CENTER)
 
-        # add a button to go to page 3
-        self.button = Button(self.frame, text="Focus Selector", command=self.go_to_page_3)
-        self.button.pack()
+    # a button to go back to the main window
+    button = Button(window, text="Close", width=20, height=3, bg="#282620", fg="white", command=window.destroy)
+    button.place(relx=0.5, rely=0.9, anchor=CENTER)
 
-    def go_to_page_2(self):
-        """ This function will go to page 2."""
-        self.frame.destroy()
-        page_2(self.master)
+    # a button which adds the selected course to the list
+    button = Button(window, text="Add", width=20, height=3, bg="#282620", fg="white",
+                    command=lambda: print_list(listy, dropdown.get(), window=window))
+    button.place(relx=0.5, rely=0.45, anchor=CENTER)
 
-    # add a function to go to page 3
-    def go_to_page_3(self):
-        """ This function will go to page 3."""
-        self.frame.destroy()
-        page_3(self.master)
+    button = Button(window, text="Generate timetable", width=20, height=3, bg="#282620", fg="white",
+                    command=window.destroy)  # TODO: add a function to this button
+    button.place(relx=0.5, rely=0.8, anchor=CENTER)
 
 
-class page_2:
-    """ This class will create a page 2. """
-    def __init__(self, master):
-        self.master = master
-        self.frame = Frame(self.master)
-        self.frame.pack()
-
-        # set up the GUI
-        self.label = Label(self.frame, text="Timetable Builder")
-        self.label.pack()
-
-        self.button = Button(self.frame, text="Home Screen", command=self.go_to_page_1)
-        self.button.pack()
-
-        # add a button to go to page 3
-        self.button = Button(self.frame, text="Focus Selector", command=self.go_to_page_3)
-        self.button.pack()
-
-        # create a drop-down menu where you can select multiple options
-        self.create_dropdown()
-
-        # display all the selections selected by the drop-down menu
-        # self.display_selections()
-
-        self.button = Button(self.frame, text="Add subject", command=self.show_list)
-        self.button.pack()
-
-        # create a list to store all selections in drop down menu
-        self.listy = set()
-
-    def go_to_page_1(self):
-        """ This function will go to page 1."""
-        self.frame.destroy()
-        page_1(self.master)
-
-    def go_to_page_3(self):
-        """ This function will go to page 3."""
-        self.frame.destroy()
-        page_3(self.master)
+@check_contracts
+def new_window_fs():
+    """This function will open the focus selector page."""
+    listy = set()
+    window = Toplevel(root)
+    window.title("Focus Selector")
+    window.geometry("500x600")
+    window.configure(background="#282634")
+    label = Label(window, text="Focus Selector", bg="#282634", fg="white")
+    label.place(relx=0.5, rely=0.05, anchor=CENTER)
 
     # create a drop-down menu where you can select multiple options
-    def create_dropdown(self):
-        """This function will create a drop-down menu where you can select multiple options."""
-        self.dropdown = ttk.Combobox(self.frame, values=self.read_packet_csv(), state="readonly")
-        self.dropdown.pack()
-        # store and display all selections from drop-down menu with every click
-        # self.dropdown.bind("<<ComboboxSelected>>", self.display_selections)
+    courses = read_packet_csv()
+    dropdown = ttk.Combobox(window, values=courses, state="readonly")
+    dropdown.place(relx=0.5, rely=0.3, anchor=CENTER)
 
-    # display all the selections selected by the drop-down menu
-    # def display_selections(self, event=None):
-    #     """This function will display the selections made in the drop-down menu."""
-    #     self.selections = self.dropdown.get()
-    #     self.label = Label(self.frame, text=self.selections)
-    #     self.label.pack()
+    # create a button which adds the selected course to the list
+    button = Button(window, text="Find Focus", width=20, height=3, bg="#282620", fg="white",
+                    command=window.destroy)  # TODO: add a function to this button
+    button.place(relx=0.5, rely=0.8, anchor=CENTER)
 
-    def show_list(self):
-        """This function will show the list of all selections made in the drop-down menu."""
-        # IMPORTANT: THIS WILL CHANGE FOR WHEN I GET THE FUNCTIONS TO WORK WITH
-        self.selections = self.dropdown.get()
-        self.listy.add(self.selections)
-        self.label = Label(self.frame, text=str(self.listy))
-        self.label.pack()
+    label = Label(window, text="Courses Taken/ want to take:", bg="#282634", fg="white", font=("Helvetica", 12))
+    label.place(relx=0.5, rely=0.45, anchor=CENTER)
 
-    def read_packet_csv(self) -> list:
-        """Read the given csv file and return a list of the first item in each row.
-        """
-        with open("data/Bookyums.csv") as filey:
-            csvy = csv.reader(filey)
-            first = True
-            packets = []
-            for network in csvy:
-                if first:
-                    first = False
-                else:
-                    packets.append(network[0])
-        return packets
+    # a button which adds the selected course to the list
+    button = Button(window, text="Add", width=20, height=3, bg="#282620", fg="white",
+                    command=lambda: print_list(listy, dropdown.get(), window=window))
+    button.place(relx=0.5, rely=0.6, anchor=CENTER)
+
+    # create a button to go back to the main window
+    button = Button(window, text="Close", width=20, height=3, bg="#282620", fg="white", command=window.destroy)
+    button.place(relx=0.5, rely=0.9, anchor=CENTER)
 
 
-class page_3:
-    """This is the page that will be shown when the user clicks the button to go to Focus Selector."""
-    def __init__(self, master):
-        self.master = master
-        self.frame = Frame(self.master)
-        self.frame.pack()
-
-        # set up the GUI
-        self.label = Label(self.frame, text="Focus Selector")
-        self.label.pack()
-
-        self.button = Button(self.frame, text="Home Screen", command=self.go_to_page_1)
-        self.button.pack()
-
-        # add a button to go to page 2
-        self.button = Button(self.frame, text="Timetable builder", command=self.go_to_page_2)
-        self.button.pack()
-
-    def go_to_page_1(self):
-        """This function will destroy the current frame and show the page 1 frame."""
-        self.frame.destroy()
-        page_1(self.master)
-
-    def go_to_page_2(self):
-        """This function will destroy the current frame and show the page 2 frame."""
-        self.frame.destroy()
-        page_2(self.master)
+@check_contracts
+def create_dropdown(window):
+    """This function will create a drop-down menu where you can select multiple options."""
+    # create a list of all the courses
+    courses = read_packet_csv()
+    # create a drop-down menu
+    dropdown = ttk.Combobox(window, values=courses, state="readonly")
+    # move it to bottom
+    dropdown.place(relx=0.5, rely=0.3, anchor=CENTER)
 
 
-# show page
-def show_page():
-    """This function will show the page 1 frame as main"""
-    root = Tk()
-    root.title("FocusForge")
-    root.geometry("600x400")
-    app = page_1(root)
-    root.mainloop()
+@check_contracts
+def print_list(listy, course, window):
+    """This function will display the list of courses selected by the drop-down menu."""
+    if course != '':
+        listy.add(course)
+        label = Label(window, text=str(listy), bg="#282634", fg="white", font=("Helvetica", 10))
+        label.place(relx=0.5, rely=0.5, anchor=CENTER)
 
 
-if __name__ == "__main__":
-    show_page()
+label = Label(root, text="Welcome to FocusForge", bg="#282634", fg="white", font=("Helvetica", 12))
+label.place(relx=0.5, rely=0.07, anchor=CENTER)
+
+# add a button which will open the timetable builder page
+button = Button(root, text="Timetable Builder", width=20, height=3, bg="#282620", fg="white", command=new_window_tt, )
+button.place(relx=0.35, rely=0.2, anchor=CENTER)
+
+# add a button which will open the focus selector page
+button = Button(root, text="Focus selector", width=20, height=3, bg="#282620", fg="white", command=new_window_fs, )
+button.place(relx=0.65, rely=0.2, anchor=CENTER)
+
+# add an image under everything and scale it down
+image = PhotoImage(file="logs.png")
+image = image.subsample(2, 2)
+label = Label(root, image=image, borderwidth=0)
+label.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+
+@check_contracts
+def read_packet_csv() -> list:
+    """Read the given csv file and return a list of the first item in each row.
+    """
+    with open("data/Bookyums.csv") as filey:
+        csvy = csv.reader(filey)
+        first = True
+        packets = []
+        for network in csvy:
+            if first:
+                first = False
+            else:
+                packets.append(network[0])
+    return packets
+
+
+mainloop()
+
+
+if __name__ == '__main__':
+    import doctest
+
+    doctest.testmod(verbose=True)
+
+    # When you are ready to check your work with python_ta, uncomment the following lines.
+    # (In PyCharm, select the lines below and press Ctrl/Cmd + / to toggle comments.)
+    # You can use "Run file in Python Console" to run PythonTA,
+    # and then also test your methods manually in the console.
+    import python_ta
+
+    python_ta.check_all(config={
+        'max-line-length': 120,
+        'disable': ['E9992', 'E9997']
+    })
