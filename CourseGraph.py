@@ -2,7 +2,6 @@ from __future__ import annotations
 import ast
 import csv
 
-import re
 from focus import _Course
 
 class Graph:
@@ -15,12 +14,11 @@ class Graph:
         with open('course-data.csv', 'r') as f:
             reader = csv.DictReader(f=f, delimiter=';')
             for row in reader:
-                course = _Course(row['code'], row['name'], [{}])
+                course = _Course(row['code'], row['name'], [set()])
                 self.courses[row['code']] = course
         with open('course-data.csv', 'r') as f:
             reader = csv.DictReader(f=f, delimiter=';')
             for row in reader:
-                pre_requisites = list(row['pre-requisites'])
                 pre_requisites = ast.literal_eval(row['pre-requisites'])
                 for prereq_code_set in pre_requisites:
                     prereq_code_set = set(prereq_code_set)
