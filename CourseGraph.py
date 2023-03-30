@@ -2,7 +2,8 @@ from __future__ import annotations
 import ast
 import csv
 
-from focus import _Course
+# from focus import _Course why is this here?
+from course import _Course
 
 class Graph:
     courses: dict[str, _Course]
