@@ -39,11 +39,38 @@ def cartesian_product(lst1: list[set], lst2: list[set]) -> list[set]:
     return [set1.union(set2) for set1 in lst1 for set2 in lst2]
 
 
-def setup_focus(course_file: str, focus_file: str) -> Focus:
+def setup_focii(course_file: str, focus_file: str) -> list[Focus]:
     graph = Graph()
+    list_of_focii = []
     with open(focus_file) as file:
         reader = csv.reader(file, delimiter=";")
+        next(reader)
         for row in reader:
+            credits_required_so_far = 0
+            list_reqs = []  # losing track of the file
             lst = ast.literal_eval(row[1])
+            for req in lst:
+                credits_required_so_far += req[0]
+                powerset_so_far = [set()]
+                powerset_size = int(2 ** len(req[1]))
+                for course in req[1]:
+                    powerset_so_far.extend(cartesian_product(powerset_so_far, [{graph.courses[course]}]))
+
+                assert len(powerset_so_far) == powerset_size
+
+                valid_paths = []  # block cuts down powerset to those meeting credits required
+                for path in powerset_so_far:
+                    if sum(course.credits for course in path) == req[0] or (sum(course.credits for course in path) == req[0] + 0.5 and any('Y' in course.name[6] for course in path)):
+                        valid_paths.append(path)
+                list_reqs.append(valid_paths)
+
+            final_valid_paths = list_reqs[0]
+            for i in range(1, len(list_reqs)):
+                final_valid_paths = cartesian_product(final_valid_paths, list_reqs[i])
+            list_of_focii.append(Focus(row[0], final_valid_paths, credits_required_so_far))
+    return list_of_focii
+
+
+
             # for req in lst
             # for each tuple in the lst, calculate powerset, cut down powerset s.t. tuple[0] plusminus 0.5 == sum(set) in powerset
