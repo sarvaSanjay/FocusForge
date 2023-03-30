@@ -15,11 +15,7 @@ class Graph:
         with open('course-data.csv', 'r') as f:
             reader = csv.DictReader(f=f, delimiter=';')
             for row in reader:
-<<<<<<< HEAD
                 course = _Course(row['code'], row['name'], [])
-=======
-                course = _Course(row['code'], row['name'], [set()])
->>>>>>> c36195b4f494bf22a92fe8f3b1a2264ed408f634
                 self.courses[row['code']] = course
         with open('course-data.csv', 'r') as f:
             reader = csv.DictReader(f=f, delimiter=';')
@@ -35,13 +31,8 @@ class Graph:
 
 if __name__ == '__main__':
     graph = Graph()
-<<<<<<< HEAD
     paths = graph.courses['CSC469H1'].get_prereqs()
     for path in paths:
         print({course.course_code for course in path})
 
     print(graph.courses['CSC469H1'].prereqs)
-=======
-    print('hi')
-    print(len(graph.prereqs))
->>>>>>> c36195b4f494bf22a92fe8f3b1a2264ed408f634
