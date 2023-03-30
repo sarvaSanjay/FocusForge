@@ -1,14 +1,16 @@
 from __future__ import annotations
 from course import _Course
+from CourseGraph import Graph
 import csv
 import math
+import ast
 
 class Focus():
     name: str
     course_reqs = list[set[_Course]]  # top  level prereqs
     credits_req = float
     # REDO: That long string of characters is not there for 2 focii so let it be
-    program_code = str  # the long string of alphabets that nobody really cares about. like ASFOC1689F
+    # program_code = str  # the long string of alphabets that nobody really cares about. like ASFOC1689F
 
     def __init__(self, name: str, courses_reqs: list[set[_Course]], credits_req: float, program_code: str):
         self.name = name
@@ -38,14 +40,10 @@ def cartesian_product(lst1: list[set], lst2: list[set]) -> list[set]:
 
 
 def setup_focus(course_file: str, focus_file: str) -> Focus:
-    courses_dict = {}
-    with open(course_file) as courses_csv:
-        reader = csv.reader(courses_csv, delimiter=';')
-        next(reader)
+    graph = Graph()
+    with open(focus_file) as file:
+        reader = csv.reader(file, delimiter=";")
         for row in reader:
-            courses_dict[row[0]] = _Course(row[0], row[1], [set()])
-    with open(course_file) as courses_csv:  # prereqs need to be done separately
-        reader = csv.reader(courses_csv, delimiter=';')
-        next(reader)
-        for row in reader: #gtg now, will touch later
-            pass
+            lst = ast.literal_eval(row[1])
+            # for req in lst
+            # for each tuple in the lst, calculate powerset, cut down powerset s.t. tuple[0] plusminus 0.5 == sum(set) in powerset
