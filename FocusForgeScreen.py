@@ -9,6 +9,8 @@ root.geometry("500x600")
 root.title("FocusForge")
 root.configure(background="#282634")
 
+# given a list of courses calculates the total credits required for that path
+# given a set of courses, choose
 
 # @check_contracts
 def new_window_tt():
