@@ -30,7 +30,7 @@ class _Course():
         common_course_found = False
         for pre_req_set in self.prereqs:
             sub_paths = []
-            for pre_req in pre_req_set: 
+            for pre_req in pre_req_set:
                 pre_req_paths = []
                 if pre_req not in visited:
                     pre_req_paths = pre_req.get_prereqs(visited)
@@ -41,7 +41,7 @@ class _Course():
             paths = get_union(paths, sub_paths)
         for path in paths:
             path.add(self)
-        if self.course_code == 'CSC207H1':
+        if self.course_code == 'CSC207H1':  # TODO remove testing code?
             print(paths)
         return paths
 
