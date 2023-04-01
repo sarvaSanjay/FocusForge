@@ -33,67 +33,14 @@ class Focus():
                 min = round(sum(course.credits for course in path), 1)  # avoid weird floating point bugs
         return min
 
+    def __repr__(self):
+        return f'Name: {self.name}\t Credits: {self.credits_req}\t Pre_reqs: {self.course_reqs}'
+
 
 def cartesian_product(lst1: list[set], lst2: list[set], max_size: int =math.inf) -> list[set]:
     """Returns a cartesian product"""
     return [set1.union(set2) for set1 in lst1 for set2 in lst2 if len(set1) + len(set2) < max_size]
 
-def setup_focus(course_graph: Graph, focus_string: list[str]) -> Focus: # deprecated
-    credits_required_so_far = 0
-    list_reqs = []
-    lst = ast.literal_eval(focus_string[1])
-    for req in lst:
-        # block calculates the powerset for each collection of requirements
-        credits_required_so_far += req[0]
-        powerset_so_far = [set()]
-        powerset_size = int(2 ** len(req[1]))
-        for course in req[1]:
-            if course in course_graph.courses:  # TODO some courses no longer exist in timetable
-                powerset_so_far.extend(cartesian_product(powerset_so_far, [{course_graph.courses[course]}], 2 * req[0] + 1))
-
-        valid_paths = []  # block cuts down powerset to those meeting credits required
-        for path in powerset_so_far:
-            if sum(course.credits for course in path) == req[0] or (
-                    sum(course.credits for course in path) == req[0] + 0.5 and any(
-                    'Y' in course.course_code[6] for course in path)):
-                valid_paths.append(path)
-
-        list_reqs.append(valid_paths)
-
-    final_valid_paths = list_reqs[0]
-    for i in range(1, len(list_reqs)):
-        final_valid_paths = cartesian_product(final_valid_paths, list_reqs[i])
-    return Focus(focus_string[0], final_valid_paths, credits_required_so_far)
-def setup_focii(course_file: str, focus_file: str) -> list[Focus]: # deprecated
-    graph = Graph()
-    list_of_focii = []
-    with open(focus_file) as file:
-        reader = csv.reader(file, delimiter=";")
-        next(reader)
-        for row in reader:
-            # credits_required_so_far = 0
-            # list_reqs = []  # losing track of the file
-            # lst = ast.literal_eval(row[1])
-            # for req in lst:
-            #     credits_required_so_far += req[0]
-            #     powerset_so_far = [set()]
-            #     powerset_size = int(2 ** len(req[1]))
-            #     for course in req[1]:
-            #         powerset_so_far.extend(cartesian_product(powerset_so_far, [{graph.courses[course]}]))
-            #
-            #     assert len(powerset_so_far) == powerset_size
-            #
-            #     valid_paths = []  # block cuts down powerset to those meeting credits required
-            #     for path in powerset_so_far:
-            #         if sum(course.credits for course in path) == req[0] or (sum(course.credits for course in path) == req[0] + 0.5 and any('Y' in course.name[6] for course in path)):
-            #             valid_paths.append(path)
-            #     list_reqs.append(valid_paths)
-            #
-            # final_valid_paths = list_reqs[0]
-            # for i in range(1, len(list_reqs)):
-            #     final_valid_paths = cartesian_product(final_valid_paths, list_reqs[i])
-            list_of_focii.append(setup_focus(graph, row))
-    return list_of_focii
 
 def setup_minimal_focus(focus_string: list[str]) -> Focus:
     """Sets up focus with only name and credits required
@@ -101,7 +48,9 @@ def setup_minimal_focus(focus_string: list[str]) -> Focus:
     lst = ast.literal_eval(focus_string[1])
     credits_required_so_far = sum(req[0] for req in lst)
     return Focus(focus_string[0], [set()], credits_required_so_far)
-def setup_minimal_focii(course_file: str, focus_file: str) -> list[Focus]:
+
+
+def setup_minimal_focii(focus_file: str) -> list[Focus]:
     list_of_focii = []
     with open(focus_file) as file:
         reader = csv.reader(file, delimiter=";")
@@ -110,6 +59,8 @@ def setup_minimal_focii(course_file: str, focus_file: str) -> list[Focus]:
             list_of_focii.append(setup_minimal_focus(row))
         return list_of_focii
 
+
+#RECO: instead of taking the focus string as a parameter read the file to find the valid focus string. Also convert this into a method
 def complete_minimal_focus(course_graph: Graph, focus_string: str, in_focus: Focus):
     """Mutates in_focus so that it contains its required courses"""
     list_reqs = []
@@ -118,11 +69,17 @@ def complete_minimal_focus(course_graph: Graph, focus_string: str, in_focus: Foc
         # block calculates the powerset for each collection of requirements
         powerset_so_far = [set()]
         for course in req[1]:
-            if course in course_graph.courses:  # TODO some courses no longer exist in timetable
+            if isinstance(course, set):
+                course_list = tuple(course_graph.courses[c] for c in course if c in course_graph.courses)
+                powerset_so_far.extend(
+                    cartesian_product(powerset_so_far, [{course_list}], 2 * req[0] + 1))
+            elif course in course_graph.courses:  # TODO some courses no longer exist in timetable
                 powerset_so_far.extend(
                     cartesian_product(powerset_so_far, [{course_graph.courses[course]}], 2 * req[0] + 1))
-
+        print(powerset_so_far)
         valid_paths = []  # block cuts down powerset to those meeting credits required
+        multiply_paths = []
+        for path in powerset_so_far:
         for path in powerset_so_far:
             if sum(course.credits for course in path) == req[0] or (
                     sum(course.credits for course in path) == req[0] + 0.5 and any(
@@ -131,11 +88,13 @@ def complete_minimal_focus(course_graph: Graph, focus_string: str, in_focus: Foc
 
         list_reqs.append(valid_paths)
 
-    final_valid_paths = list_reqs[0]
-    for i in range(1, len(list_reqs)):
-        final_valid_paths = cartesian_product(final_valid_paths, list_reqs[i])
-    in_focus.course_reqs = final_valid_paths
+    # final_valid_paths = list_reqs[0]
+    # for i in range(1, len(list_reqs)):
+    #     final_valid_paths = cartesian_product(final_valid_paths, list_reqs[i])
+    # in_focus.course_reqs = final_valid_paths
 
+
+# RECO: We are probably never going to use this so just remove it
 def complete_minimal_focii(course_graph: Graph, focus_file: str, in_focii: list[Focus]):
     """Mutates each focus in in_focii so that it contains its required courses
     Preconditions:
