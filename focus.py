@@ -1,5 +1,5 @@
 from __future__ import annotations
-from course import _Course
+from course import _Course, get_union
 from CourseGraph import Graph
 import csv
 import math
@@ -77,10 +77,13 @@ def complete_minimal_focus(course_graph: Graph, focus_string: str, in_focus: Foc
                 powerset_so_far.extend(
                     cartesian_product(powerset_so_far, [{course_graph.courses[course]}], 2 * req[0] + 1))
         print(powerset_so_far)
+        print()
+        total_paths = []
+        for path in powerset_so_far:
+            total_paths.extend(multiply_paths(path))
+        print(total_paths)
         valid_paths = []  # block cuts down powerset to those meeting credits required
-        multiply_paths = []
-        for path in powerset_so_far:
-        for path in powerset_so_far:
+        for path in total_paths:
             if sum(course.credits for course in path) == req[0] or (
                     sum(course.credits for course in path) == req[0] + 0.5 and any(
                 'Y' in course.course_code[6] for course in path)):
@@ -88,10 +91,10 @@ def complete_minimal_focus(course_graph: Graph, focus_string: str, in_focus: Foc
 
         list_reqs.append(valid_paths)
 
-    # final_valid_paths = list_reqs[0]
-    # for i in range(1, len(list_reqs)):
-    #     final_valid_paths = cartesian_product(final_valid_paths, list_reqs[i])
-    # in_focus.course_reqs = final_valid_paths
+    final_valid_paths = list_reqs[0]
+    for i in range(1, len(list_reqs)):
+        final_valid_paths = cartesian_product(final_valid_paths, list_reqs[i])
+    in_focus.course_reqs = final_valid_paths
 
 
 # RECO: We are probably never going to use this so just remove it
@@ -107,3 +110,21 @@ def complete_minimal_focii(course_graph: Graph, focus_file: str, in_focii: list[
         for row in reader:
             complete_minimal_focus(course_graph, row[1], in_focii[i])
             i += 1
+
+
+def multiply_paths(path):
+    optioned_courses = []
+    regular_courses = set()
+    for choice in path:
+        if isinstance(choice, _Course):
+            regular_courses.add(choice)
+        if isinstance(choice, tuple):
+            courses = []
+            for course in choice:
+                courses.append({course})
+            optioned_courses.append(courses)
+    total_paths = [regular_courses]
+    while len(optioned_courses) != 0:
+        total_paths = get_union(total_paths, optioned_courses[0])
+        optioned_courses.pop(0)
+    return total_paths
