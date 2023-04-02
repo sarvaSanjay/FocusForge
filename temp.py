@@ -1,6 +1,6 @@
 from focus import setup_minimal_focii, complete_minimal_focus, rank_path
 from pprint import pprint
-from CourseGraph import Graph
+from CourseGraph import Graph, get_schedule
 
 # Web and Internet Technologies
 #
@@ -14,7 +14,7 @@ print(len(paths))
 i = 0
 j = 0
 for path in paths:
-    print(rank_path(path, completed=completed), path)
+    print(rank_path(path, completed=completed), get_schedule(path))
     i += 1
     if i == 10:
         break

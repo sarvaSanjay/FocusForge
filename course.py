@@ -39,6 +39,22 @@ class _Course():
             path.add(self)
         return paths
 
+    def prereqs_to_set(self) -> set[_Course]:
+        prereq_set = set()
+        for prereq in self.prereqs:
+            if isinstance(prereq, _Course):
+                prereq_set.add(prereq)
+            else:
+                for req in prereq:
+                    prereq_set.add(req)
+        return prereq_set
+
+    def path_has_prerequisite(self, path: set[_Course], completed: set[_Course]):
+        for course in path:
+            if course in self.prereqs_to_set() and course not in completed:
+                return True
+        return False
+
     def __repr__(self) -> str:
         return self.course_code
 
