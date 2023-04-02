@@ -18,6 +18,7 @@ class _Course():
         else:
             self.credits = 0.5
 
+    # TODO add type hint for visited
     def get_prereqs(self, visited: set = set()) -> list[set[_Course]]:  # can't have set in set
         # if course is CSC265, prereqs are CSC240 or CSC236 (excluding coreqs)
         # CSC240 prereqs are none
@@ -38,6 +39,14 @@ class _Course():
         for path in paths:
             path.add(self)
         return paths
+
+    def get_prereqs_left(self, completed: set[_Course]) -> list[set[_Course]]:
+        prereqs_list = self.get_prereqs()
+        for prereq_set in prereqs_list:
+            for completed_course in completed:
+                if completed_course in prereq_set:
+                    prereq_set.remove(completed_course)
+        return prereqs_list
 
     def __repr__(self) -> str:
         return self.course_code
