@@ -29,10 +29,24 @@ class Graph:
                         self.prereqs.add((self.courses[row['code']], pre_req))
 
 
+def get_schedule(path: set[_Course], completed=None) -> list[set[_Course]]:
+    if completed is None:
+        completed = set()
+    if completed == path:
+        return []
+    next_courses = set()
+    for course in path:
+        if (not course.path_has_prerequisite(path, completed)) and (course not in completed):
+            next_courses.add(course)
+    return [next_courses] + get_schedule(path, completed.union(next_courses))
+
+
 if __name__ == '__main__':
     graph = Graph()
-    paths = graph.courses['CSC469H1'].get_prereqs()
-    for path in paths:
-        print({course.course_code for course in path})
-
-    print(graph.courses['CSC469H1'].prereqs)
+    paths = graph.courses['CSC469H1'].prereqs_to_set()
+    print(paths)
+    print(graph.courses['CSC469H1'].path_has_prerequisite({graph.courses['CSC207H1']}))
+    # for path in paths:
+    #     print({course.course_code for course in path})
+    #
+    # print(graph.courses['CSC469H1'].prereqs)
