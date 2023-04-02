@@ -2,9 +2,12 @@ import copy
 
 from course import _Course
 from focus import *  # also imports course
+
+
 # from CourseGraph import Graph
 
-def schedule(in_path: set[_Course], completed_courses: set[_Course], current_semester: str, max_courses_in_semster: int = 5) -> dict[str, set[_Course]]:
+def schedule(in_path: set[_Course], completed_courses: set[_Course], current_semester: str,
+             max_courses_in_semster: int = 5) -> dict[str, set[_Course]]:
     """Returns one of the faster way to complete a focus
     Preconditions:
     current_semester is in ('Fall' + 'Winter') 20([0-9])^2
@@ -16,7 +19,7 @@ def schedule(in_path: set[_Course], completed_courses: set[_Course], current_sem
     # I should probably add a helper function to deal with the dict
     with open('.schedule_in_path.csv', 'w') as temp_file:
         writer = csv.writer(temp_file, delimiter=';')
-        writer.writerow(['code','name','pre-requisites'])
+        writer.writerow(['code', 'name', 'pre-requisites'])
         for course in in_path:
             prereqs = []
             for prereq_set in course.prereqs:
@@ -30,31 +33,41 @@ def schedule(in_path: set[_Course], completed_courses: set[_Course], current_sem
                 writer.writerow([course.course_code, course.name, [prereqs]])
             else:
                 writer.writerow([course.course_code, course.name, []])
-    # def leveler(course: _Course, leveled_dict: dict[_Course: int], curr_level: int = 0):
-    #     for prereq_list in course.get_prereqs():
-    #         if all(course in in_path for course in prereq_list):  # the current set is the one used in in_path
-    #             for prereq in prereq_list:
-    #                 if prereq in leveled_dict and leveled_dict[prereq] <= curr_level:
-    #                     leveled_dict[prereq] = curr_level + 1
-    #                     leveler(prereq, leveled_dict, curr_level + 1)
-    #     nonlocal max_level
-    #     if max_level < curr_level:
-    #         max_level = curr_level
-    #
-    # max_level = 0
-    # leveled_path = {}
-    # for course in in_path:
-    #     leveled_path[course] = 0
-    # for course in in_path:
-    #     leveler(course, leveled_path)
-    # curr_semester, curr_year = current_semester.split()
-    # course_schedule = {}
-    # while max_level != 0:
-    #     curr_level = max_level
-    #     curr_courses = 0
-    #     while curr_courses < max_courses_in_semster:
-    #         curr_courses += 1
 
+    course_graph = Graph('.schedule_in_path.csv')
+
+    def leveler(course: _Course, leveled_dict: dict[_Course: int], curr_level: int = 0):
+        for prereq_list in course.get_prereqs():
+            if all(course in in_path for course in prereq_list):  # the current set is the one used in in_path
+                for prereq in prereq_list:
+                    if prereq in leveled_dict and leveled_dict[prereq] <= curr_level:
+                        leveled_dict[prereq] = curr_level + 1
+                        leveler(prereq, leveled_dict, curr_level + 1)
+        nonlocal max_level
+        if max_level < curr_level:
+            max_level = curr_level
+
+    max_level = 0
+    leveled_path = {}
+    for course in in_path:
+        leveled_path[course] = 0
+    for course in in_path:
+        leveler(course, leveled_path)
+    curr_semester, curr_year = current_semester.split()
+    curr_year = int(curr_year)
+    semester_list = []
+    for i in range(0, max_level):
+        if curr_semester == 'Fall ':
+            curr_semester = 'Winter '
+            semester_list.append(curr_semester + str(curr_year))
+        else:  # i.e. is Winter
+            curr_year += 1
+            curr_semester = 'Fall '
+            semester_list.append(curr_semester + str(curr_year))
+
+    course_schedule = {semester_list[i]: {course for course in leveled_path if i == max_level - leveled_path[course]}
+                       for i in range(0, len(semester_list))}
+    
 
     # so...uhhh...ignore this block
     # def get_prereqs(input_course: _Course, curr_level: int, visited: set = set()) -> list[set[tuple[int, _Course]]]:
@@ -90,8 +103,6 @@ def schedule(in_path: set[_Course], completed_courses: set[_Course], current_sem
     # for course in completed_courses: # avoid iteration bugs
     #     if course in path:
     #         path.remove(course)
-
-
 
 # Lower func was used for testing.  Just keeping it here for now
 # def get_prereqs(input_course: _Course, curr_level: int, visited: set = set()) -> list[set[tuple[int, _Course]]]:
