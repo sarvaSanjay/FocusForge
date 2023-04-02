@@ -10,15 +10,15 @@ class Graph:
     prereqs: set[tuple[_Course, _Course]]
 
 # can we make it so that the file names aren't hard coded
-    def __init__(self) -> None:
+    def __init__(self, input_file: str = 'course-data.csv') -> None:
         self.courses = {}
         self.prereqs = set()
-        with open('course-data.csv', 'r') as f:
+        with open(input_file, 'r') as f:
             reader = csv.DictReader(f=f, delimiter=';')
             for row in reader:
                 course = _Course(row['code'], row['name'], [])
                 self.courses[row['code']] = course
-        with open('course-data.csv', 'r') as f:
+        with open(input_file, 'r') as f:
             reader = csv.DictReader(f=f, delimiter=';')
             for row in reader:
                 pre_requisites = ast.literal_eval(row['pre-requisites'])
