@@ -5,13 +5,38 @@ import csv
 # from focus import _Course why is this here?
 from course import _Course
 
+
 class Graph:
+    """
+    Creates a Graph of all courses depicting the pre-requisite relations between all courses.
+
+    Instance Attributes
+    - courses:
+        A dictionary of all courses in the University of Toronto where the hey corresponds to the six letter unique
+        course code and the value is a _Course object.
+    - prereqs:
+        A set of all pre-requisite relations in the University of Toronto academic calendar. Each pre-requiste relation
+        is represented as a tuple whose first value is the parent course and the second value is the child course which
+        is the pre-requisite of the first course.
+
+    Representation Invariants:
+        - all([prereq[0].course_code in self.courses and prereq[1].course_code in self.courses for prereq in self.prereqs])
+        - all([prereq[1] in prereq[0].prereqs for prereq in self.prereqs])
+    """
     courses: dict[str, _Course]
     prereqs: set[tuple[_Course, _Course]]
 
     def __init__(self, input_file: str = 'course-data.csv') -> None:
         self.courses = {}
         self.prereqs = set()
+        self.generate_graph_from_csv(input_file=input_file)
+
+    def generate_graph_from_csv(self, input_file: str = 'course-data.csv'):
+        """
+        Generates the courses and pre-requisite relations from the input_file.
+        Preconditions:
+        - input_file is a valid csv file that contains course codes, names and prereqs.
+        """
         with open(input_file, 'r') as f:
             reader = csv.DictReader(f=f, delimiter=';')
             for row in reader:
@@ -30,6 +55,12 @@ class Graph:
 
 
 def get_schedule(path: set[_Course], completed=None) -> list[set[_Course]]:
+    """
+    Generates a schedule to complete a particular path of courses. The function works by recursively finding the set of
+    courses which can be met only using the completed courses.
+    Preconditions:
+    - [course in path for course in completed]
+    """
     if completed is None:
         completed = set()
     if completed == path:

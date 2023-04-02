@@ -10,8 +10,8 @@ import ast
 
 class Focus():
     name: str
-    course_reqs = list[set[_Course]]  # top  level prereqs
-    credits_req = float
+    course_reqs: list[set[_Course]]  # top  level prereqs
+    credits_req: float
     # REDO: That long string of characters is not there for 2 focii so let it be
     # program_code = str  # the long string of alphabets that nobody really cares about. like ASFOC1689F
 
@@ -38,7 +38,7 @@ class Focus():
 
     def get_paths(self, completed=None) -> list[set[_Course]]:
         """
-        Get all possible paths by which you can complete a particular focus
+        Get all possible paths by which you can complete a particular focus.
         """
         if completed is None:
             completed = set()
