@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import operator
+
 from course import _Course, get_union
 from CourseGraph import Graph
 import csv
@@ -33,6 +36,23 @@ class Focus():
                 min = round(sum(course.credits for course in path), 1)  # avoid weird floating point bugs
         return min
 
+    def get_paths(self, completed=None) -> list[set[_Course]]:
+        """
+        Get all possible paths by which you can complete a particular focus
+        """
+        if completed is None:
+            completed = set()
+        total_paths = []
+        for reqs in self.course_reqs:
+            paths = [set()]
+            for course in reqs:
+                sub_paths = course.get_prereqs()
+                sub_paths.sort(key=lambda x: (rank_path(x, completed), len(x)))
+                paths = get_union(paths, sub_paths[:5])
+            total_paths.extend(paths)
+        total_paths.sort(key=lambda x: (rank_path(x, completed), len(x)))
+        return total_paths
+
     def __repr__(self):
         return f'Name: {self.name}\t Credits: {self.credits_req}\t Pre_reqs: {self.course_reqs}'
 
@@ -61,8 +81,16 @@ def setup_minimal_focii(focus_file: str) -> list[Focus]:
 
 
 #RECO: instead of taking the focus string as a parameter read the file to find the valid focus string. Also convert this into a method
-def complete_minimal_focus(course_graph: Graph, focus_string: str, in_focus: Focus):
+def complete_minimal_focus(course_graph: Graph, in_focus: Focus, focus_file: str):
     """Mutates in_focus so that it contains its required courses"""
+    with open(focus_file) as file:
+        reader = csv.reader(file, delimiter=";")
+        next(reader)
+        for row in reader:
+            if row[0] == in_focus.name:
+                focus_string = row[1]
+                break
+
     list_reqs = []
     lst = ast.literal_eval(focus_string)
     for req in lst:
@@ -76,40 +104,23 @@ def complete_minimal_focus(course_graph: Graph, focus_string: str, in_focus: Foc
             elif course in course_graph.courses:  # TODO some courses no longer exist in timetable
                 powerset_so_far.extend(
                     cartesian_product(powerset_so_far, [{course_graph.courses[course]}], 2 * req[0] + 1))
-        print(powerset_so_far)
-        print()
+
         total_paths = []
         for path in powerset_so_far:
             total_paths.extend(multiply_paths(path))
-        print(total_paths)
+
         valid_paths = []  # block cuts down powerset to those meeting credits required
         for path in total_paths:
             if sum(course.credits for course in path) == req[0] or (
                     sum(course.credits for course in path) == req[0] + 0.5 and any(
                 'Y' in course.course_code[6] for course in path)):
                 valid_paths.append(path)
-
         list_reqs.append(valid_paths)
 
     final_valid_paths = list_reqs[0]
     for i in range(1, len(list_reqs)):
         final_valid_paths = cartesian_product(final_valid_paths, list_reqs[i])
     in_focus.course_reqs = final_valid_paths
-
-
-# RECO: We are probably never going to use this so just remove it
-def complete_minimal_focii(course_graph: Graph, focus_file: str, in_focii: list[Focus]):
-    """Mutates each focus in in_focii so that it contains its required courses
-    Preconditions:
-    focus_file's ith row's is for the ith focus in in_focii
-    """
-    with open(focus_file) as file:
-        i = 0
-        reader = csv.reader(file, delimiter=";")
-        next(reader)
-        for row in reader:
-            complete_minimal_focus(course_graph, row[1], in_focii[i])
-            i += 1
 
 
 def multiply_paths(path):
@@ -128,3 +139,13 @@ def multiply_paths(path):
         total_paths = get_union(total_paths, optioned_courses[0])
         optioned_courses.pop(0)
     return total_paths
+
+
+def rank_path(path: set[_Course], completed=None) -> float:
+    if completed is None:
+        completed = set()
+    credits = 0.0
+    for course in path:
+        if course not in completed:
+            credits += course.credits
+    return credits
