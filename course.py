@@ -48,11 +48,24 @@ class _Course:
         """
         Recursive function that returns a list of set of courses where each set of courses is a way in which the
         pre-requisites for a particular course can be met.
+        Doctests:
+        >>> csc110 = _Course('CSC110Y1', 'Foundations of Computer Science I', [])
+        >>> csc111 = _Course('CSC111H1', 'Foundations of Computer Science II', [{csc110}])
+        >>> prereqs = csc111.get_prereqs()
+        >>> real_prereqs = [{csc110, csc111}]
+        >>> all(prereq in real_prereqs for prereq in prereqs) and all(prereq in prereqs for prereq in real_prereqs)
+        True
+        >>> csc108 = _Course('CSC108H1', 'Introduction to Computer Programming', [])
+        >>> csc148 = _Course('CSC148H1', 'Introduction to Computer Science', [{csc108}])
+        >>> csc165 = _Course('CSC165H1', 'Mathematical Expression and Reasoning for Computer Science', [])
+        >>> csc236 = _Course('CSC236H1', 'Introduction to the Theory of Computation', [{csc148, csc165, csc111}])
+        >>> csc240 = _Course('CSC240H1', 'Enriched Introduction to the Theory of Computation', [])
+        >>> csc265 = _Course('CSC265H1', 'Enriched Data Structures and Analysis', [{csc240, csc236}])
+        >>> prereqs = csc265.get_prereqs()
+        >>> real_prereqs = [{csc240, csc265}, {csc111, csc110, csc236, csc265}, {csc148, csc108, csc236,csc265},{csc165, csc236, csc265}]
+        >>> all(prereq in real_prereqs for prereq in prereqs) and all(prereq in prereqs for prereq in real_prereqs)
+        True
         """
-        # if course is CSC265, prereqs are CSC240 or CSC236 (excluding coreqs)
-        # CSC240 prereqs are none
-        # CSC236 prereqs are (CSC148 and CSC165) OR CSC(csc111)
-        # so this methods returns {{CSC240}, {CSC236, CSC148, CSC165}, {CSC236, CSC111}}
         if visited is None:
             visited = set()
         visited = visited.union({self})
