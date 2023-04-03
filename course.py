@@ -1,7 +1,6 @@
 """Module Description
 ===============================
 This Python module implements our Course class
-(nor will this file affect other parts of this assignment).
 
 Copyright and Usage Information
 ===============================
