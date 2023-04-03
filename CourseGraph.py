@@ -74,7 +74,7 @@ def get_schedule(path: set[_Course], completed=None) -> list[set[_Course]]:
 
 if __name__ == '__main__':
     graph = Graph()
-    paths = graph.courses['CSC469H1'].prereqs_to_set()
+    paths = graph.courses['STA237H1'].prereqs_to_set()
     print(paths)
     print(graph.courses['CSC469H1'].path_has_prerequisite({graph.courses['CSC207H1']}))
     # for path in paths:
