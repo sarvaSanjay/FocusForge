@@ -3,20 +3,29 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
+
 class Scraper:
+    """
+    Creates a scraper object that scrapes data from the Arts and Science Calendar.
+    """
+
     def __init__(self) -> None:
-        r = requests.get('https://artsci.calendar.utoronto.ca/print/view/pdf/course_search/print_page/debug?course_keyword=&field_section_value=All&field_prerequisite_value=&field_breadth_requirements_value=All&field_distribution_requirements_value=All')
+        url_part_1 = 'https://artsci.calendar.utoronto.ca/print/view/pdf/course_search/print_page/'
+        url_part_2 = 'debug?course_keyword=&field_section_value=All&field_prerequisite_value=&'
+        url_part_3 = 'field_breadth_requirements_value=All&field_distribution_requirements_value=All'
+        r = requests.get(url_part_1 + url_part_2 + url_part_3)
         self.soup = BeautifulSoup(r.text, 'html.parser')
 
     def get_course_soups(self) -> list[BeautifulSoup]:
         """
-        Returns a list of beautiful soup objects for each course in the academic calender.
-        Assumes that each course is in an HTML div of class "no-break views-row"
+        Returns a list of beautiful soup objects for each course in the academic calendar.
+        Preconditions:
+        - Assumes that each course is in an HTML div of class "no-break views-row"
         """
         courses = self.soup.find_all("div", class_="no-break views-row")
         course_soups = [BeautifulSoup(str(course), 'html.parser') for course in courses]
         return course_soups
-    
+
     def get_course_codes_and_names(self) -> tuple[list[str], list[str]]:
         """
         Returns a tuple of two lists: a list of course codes and a list of course names.
@@ -27,33 +36,36 @@ class Scraper:
         course_codes = [course.split('-')[0].strip() for course in course_titles]
         course_names = [course.split('-')[1].strip() for course in course_titles]
         return course_codes, course_names
-    
+
     def get_prereq_soups(self) -> list[BeautifulSoup]:
         """
         Returns a list of beautiful soup objects for the pre-requisites of each course.
-        Assumes that each course's prerequisite data is stored in a span titled "views-field views-field-field-prerequisite".
+        Assumes that each course's prerequisite data is stored in a span titled
+        "views-field views-field-field-prerequisite".
         If a course's pre-requisite info is not present, its soup object is a BeautifulSoup object of empty string.
         """
         course_soups = self.get_course_soups()
         prereq_soups = []
         for soup in course_soups:
-            prereq_data_html = soup.find("span" , class_ = "views-field views-field-field-prerequisite")
+            prereq_data_html = soup.find("span", class_="views-field views-field-field-prerequisite")
             if prereq_data_html:
                 prereq_soup = BeautifulSoup(str(prereq_data_html), "html.parser")
             else:
                 prereq_soup = BeautifulSoup('', 'html.parser')
             prereq_soups.append(prereq_soup)
         return prereq_soups
-    
-    def get_pre_reqs(self) -> list[set[str]]:
+
+    def get_pre_reqs(self) -> list[list[set[str]]]:
         """
         Returns a list of pre-requisite courses for each course in the academic calender.
         Assumes that each course pre-requisite is in a link tag and is a course-code of 8 characters.
+        This implementation does not account for any co-requisites and more complex requirements like 4.0 credits should
+        be completed.
         """
         prereq_soups = self.get_prereq_soups()
         pre_reqs = []
         for prereq_soup in prereq_soups:
-            prereq_html = str(prereq_soup.find("span", class_ = "field-content"))
+            prereq_html = str(prereq_soup.find("span", class_="field-content"))
             split_courses = prereq_html.split(';')
             pre_req_list = []
             for courses in split_courses:
@@ -93,4 +105,4 @@ def get_valid_links(soup: BeautifulSoup) -> set[str]:
 
 if __name__ == '__main__':
     scraper = Scraper()
-    reqrs = scraper.get_csv_file()
+    scraper.get_csv_file()

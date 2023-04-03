@@ -11,7 +11,7 @@ import csv
 import math
 import ast
 from course import _Course, get_union
-from CourseGraph import Graph
+from course_graph import Graph
 
 
 class Focus:
