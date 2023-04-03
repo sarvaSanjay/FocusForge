@@ -5,7 +5,7 @@ import csv
 import focus
 from tkinter import *
 from tkinter import ttk
-import CourseGraph
+import course_graph
 # from python_ta.contracts import check_contracts
 root = Tk()
 root.geometry("500x600")
@@ -120,12 +120,13 @@ def read_give_names() -> list:
 
 def find_all_subjects(focus_name: str, completed: set):
     """yum"""
-
-    graph = CourseGraph.Graph()
+    graph = course_graph.Graph()
+    completed_course = {graph.courses[course] for course in graph.courses if course in completed}
+    print(completed_course)
     courses = [stry for stry in focus.setup_minimal_focii('focus-data.csv') if stry.name == focus_name][0]
     focus.complete_minimal_focus(graph,courses,'focus-data.csv')
-    diff_paths = courses.get_paths(completed)
-    subjects_per_sem = CourseGraph.get_schedule(diff_paths[0], completed)
+    diff_paths = courses.get_paths(completed_course)
+    subjects_per_sem = course_graph.get_schedule(diff_paths[0], completed_course)
 
     window = Toplevel(root)
     window.title("Focus Selector")
@@ -142,17 +143,30 @@ def find_all_subjects(focus_name: str, completed: set):
     tree.column("# 3", anchor=CENTER)
     tree.heading("# 3", text="Courses")
     # Insert the data in Treeview widget
-    for i in range(1, len(subjects_per_sem)):
-        sub_so_far = []
-        if i % 2 == 0:
-            sem = 'Winter'
-        else:
-            sem = 'fall'
-        for subject in subjects_per_sem[i]:
-            sub_so_far.append(subject.course_code)
-            print(sub_so_far)
-        tree.insert('', 'end', text="1", values=(str(i), sem, str(sub_so_far)))
-        i += 1
+    # for i in range(1, len(subjects_per_sem)):
+    #     sub_so_far = []
+    #     if i % 2 == 0:
+    #         sem = 'Winter'
+    #     else:
+    #         sem = 'fall'
+    #     for subject in subjects_per_sem[i]:
+    #         sub_so_far.append(subject.course_code)
+    #         print(sub_so_far)
+    #     tree.insert('', 'end', text="1", values=(str(i), sem, str(sub_so_far)))
+    #     i += 1
+    # tree.pack()
+    i = 1
+    j = 1
+    for year in subjects_per_sem:
+        for sub in year:
+            if j % 2 == 0:
+                sem = 'winter'
+            else:
+                sem = 'Fall'
+            tree.insert("", "end", values=(i, sem, sub.course_code))
+        if j %2 == 0:
+            i += 1
+        j += 1
     tree.pack()
 
 mainloop()
