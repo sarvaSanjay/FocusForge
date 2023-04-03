@@ -1,9 +1,18 @@
+"""Module Description
+===============================
+This Python module implements our Course class
+(nor will this file affect other parts of this assignment).
+
+Copyright and Usage Information
+===============================
+This file is provided under the Mozilla Public License 2.0
+This file is Copyright (c) 2023 Raahil Vora, Sarva Sanjay, and Ansh Prasad."""
 from __future__ import annotations
-from course import _Course, get_union
-from CourseGraph import Graph
 import csv
 import math
 import ast
+from course import _Course, get_union
+from CourseGraph import Graph
 
 
 class Focus:
@@ -50,7 +59,7 @@ class Focus:
         total_paths.sort(key=lambda x: (rank_path(x, completed), len(x)))
         return total_paths
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Name: {self.name}\t Credits: {self.credits_req}\t Pre_reqs: {self.course_reqs}'
 
 
@@ -87,7 +96,10 @@ def complete_minimal_focus(course_graph: Graph, in_focus: Focus, focus_file: str
     """
     Mutates in_focus so that it contains its required courses. The function calculates all possible ways to complete a
     focus.
+    Preconditions:
+    focus_file contains the corresponding in_focus
     """
+    focus_string = ''
     # Reads the file to find the initial course requirements
     with open(focus_file) as file:
         reader = csv.reader(file, delimiter=";")
@@ -117,8 +129,8 @@ def complete_minimal_focus(course_graph: Graph, in_focus: Focus, focus_file: str
         # block cuts down powerset to those meeting credits required
         valid_paths = []
         for path in total_paths:
-            sum_credits = sum(course.credits for course in path)
-            contains_y = any('Y' in course.course_code[6] for course in path)
+            sum_credits = sum(subject.credits for subject in path)
+            contains_y = any('Y' in subject.course_code[6] for subject in path)
             if sum_credits == req[0] or (sum_credits == req[0] + 0.5 and contains_y):
                 valid_paths.append(path)
         list_reqs.append(valid_paths)
@@ -162,3 +174,16 @@ def rank_path(path: set[_Course], completed: set = None) -> float:
         if course not in completed:
             credits_so_far += course.credits
     return credits_so_far
+
+
+if __name__ == '__main__':
+    import doctest
+
+    doctest.testmod()
+    import python_ta
+
+    python_ta.check_all(config={
+        'disable': ['forbidden-IO-function', 'too-many-locals'],
+        'extra-imports': ['course', 'math', 'ast', 'csv', 'CourseGraph'],  # the names (strs) of imported modules
+        'max-line-length': 120
+    })
