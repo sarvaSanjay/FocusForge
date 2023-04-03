@@ -1,13 +1,22 @@
+"""Module Description
+===============================
+This Python module implements our course scraper
+
+Copyright and Usage Information
+===============================
+This file is provided under the Mozilla Public License 2.0
+This file is Copyright (c) 2023 Raahil Vora, Sarva Sanjay, and Ansh Prasad."""
 import csv
+import re
 import requests
 from bs4 import BeautifulSoup
-import re
 
 
 class Scraper:
     """
     Creates a scraper object that scrapes data from the Arts and Science Calendar.
     """
+    soup: BeautifulSoup
 
     def __init__(self) -> None:
         url_part_1 = 'https://artsci.calendar.utoronto.ca/print/view/pdf/course_search/print_page/'
@@ -104,5 +113,16 @@ def get_valid_links(soup: BeautifulSoup) -> set[str]:
 
 
 if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
+    import python_ta
+
+    python_ta.check_all(config={
+        'disable': ['forbidden-IO-function'],
+        'extra-imports': ['csv', 'requests', 're', 'bs4'],  # the names (strs) of imported modules
+        'allowed-io': [],  # the names (strs) of functions that call print/open/input
+        'max-line-length': 120
+    })
+
     scraper = Scraper()
     scraper.get_csv_file()
