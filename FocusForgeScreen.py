@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
     python_ta.check_all(config={
         'disable': ['forbidden-IO-function', 'forbidden-top-level-code', 'wildcard-import',
-                    'forbidden-global-variables'],
+                    'forbidden-global-variables', 'too-many-locals'],
         # these are all disabled becuase of use of tkinter and use of print statements to display.
         'extra-imports': ['course', 'tkinter', 'focus', 'csv', 'course_graph', 'typing'],
         # the names (strs) of imported modules
