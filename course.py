@@ -1,6 +1,12 @@
+"""Module Description
+===============================
+This Python module implements our Course class
+
+Copyright and Usage Information
+===============================
+This file is provided under the Mozilla Public License 2.0
+This file is Copyright (c) 2023 Raahil Vora, Sarva Sanjay, and Ansh Prasad."""
 from __future__ import annotations
-import math
-import csv
 
 
 class _Course:
@@ -17,6 +23,7 @@ class _Course:
         can be met.
     - credits:
         Number of credits that a course is worth. It can either be 0.5 or 1.0.
+
     Representation Invariants
     - len(self.course_code) == 8
     - len(self.name) != 0
@@ -28,7 +35,7 @@ class _Course:
     prereqs: list[set[_Course]]
     credits: float
 
-    def __init__(self, code: str, name: str, prereqs: list[set[_Course]]):
+    def __init__(self, code: str, name: str, prereqs: list[set[_Course]]) -> None:
         self.course_code = code
         self.name = name
         self.prereqs = prereqs
@@ -98,3 +105,16 @@ def get_union(greater_set: list[set], smaller_set: list[set]) -> list[set]:
             joined_path = path.union(path1)
             total_paths.append(joined_path)
     return total_paths
+
+
+if __name__ == '__main__':
+    import doctest
+
+    doctest.testmod()
+    import python_ta
+
+    python_ta.check_all(config={
+        'extra-imports': [],  # the names (strs) of imported modules
+        'allowed-io': [],  # the names (strs) of functions that call print/open/input
+        'max-line-length': 120
+    })

@@ -1,44 +1,49 @@
+"""Module Description
+===============================
+This Python module implements our focus class
+
+Copyright and Usage Information
+===============================
+This file is provided under the Mozilla Public License 2.0
+This file is Copyright (c) 2023 Raahil Vora, Sarva Sanjay, and Ansh Prasad."""
 from __future__ import annotations
-
-import operator
-
-from course import _Course, get_union
-from CourseGraph import Graph
 import csv
 import math
 import ast
+from course import _Course, get_union
+from CourseGraph import Graph
 
-class Focus():
+
+class Focus:
+    """
+    Represents a single focus at University of Toronto.
+
+    Instance Attributes
+    - name:
+        Name of the focus.
+    - course_reqs:
+        Top-level courses required in order to complete a focus at University of Toronto.
+        It is a list of set of Courses where every set of courses represents a valid way to complete the focus.
+    - credits_req:
+        The total number of credits required to complete a focus.
+
+    Representation Invariants:
+    - self.name != ''
+    - self.credits_req > 0.0
+    - every course in self.course_reqs is a valid course
+    """
     name: str
     course_reqs: list[set[_Course]]  # top  level prereqs
     credits_req: float
-    # REDO: That long string of characters is not there for 2 focii so let it be
-    # program_code = str  # the long string of alphabets that nobody really cares about. like ASFOC1689F
 
-    def __init__(self, name: str, courses_reqs: list[set[_Course]], credits_req: float):
+    def __init__(self, name: str, courses_reqs: list[set[_Course]], credits_req: float) -> None:
         self.name = name
         self.course_reqs = courses_reqs
         self.credits_req = credits_req
-        # self.program_code = program_code
 
-    def credits_left(self, completed: set[_Course]) -> float:
-        """Returns the number of credits left to complete a focus"""
-        total_prereqs = [set()]
-        for path in self.course_reqs:
-            temp_list = [set()]
-            for course in path:
-                temp_list = cartesian_product(temp_list, course.get_prereqs())
-                temp_list = cartesian_product(temp_list, [{course}])
-            total_prereqs = cartesian_product(temp_list, total_prereqs)
-        min = math.inf
-        for path in total_prereqs:
-            if sum(course.credits for course in path if course not in completed) < min:
-                min = round(sum(course.credits for course in path), 1)  # avoid weird floating point bugs
-        return min
-
-    def get_paths(self, completed=None) -> list[set[_Course]]:
+    def get_paths(self, completed: set = None) -> list[set[_Course]]:
         """
-        Get all possible paths by which you can complete a particular focus.
+        Get all possible course paths by which you can complete a particular focus.
         """
         if completed is None:
             completed = set()
@@ -53,24 +58,29 @@ class Focus():
         total_paths.sort(key=lambda x: (rank_path(x, completed), len(x)))
         return total_paths
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Name: {self.name}\t Credits: {self.credits_req}\t Pre_reqs: {self.course_reqs}'
 
 
-def cartesian_product(lst1: list[set], lst2: list[set], max_size: int =math.inf) -> list[set]:
+def cartesian_product(lst1: list[set], lst2: list[set], max_size: int = math.inf) -> list[set]:
     """Returns a cartesian product"""
     return [set1.union(set2) for set1 in lst1 for set2 in lst2 if len(set1) + len(set2) < max_size]
 
 
 def setup_minimal_focus(focus_string: list[str]) -> Focus:
-    """Sets up focus with only name and credits required
-    i.e., does not calculate valid course requirements for a focus"""
+    """
+    Sets up focus with only name and credits required
+    i.e., does not calculate valid course requirements for a focus
+    """
     lst = ast.literal_eval(focus_string[1])
     credits_required_so_far = sum(req[0] for req in lst)
     return Focus(focus_string[0], [set()], credits_required_so_far)
 
 
 def setup_minimal_focii(focus_file: str) -> list[Focus]:
+    """
+    Returns a list of focii with only names and credits required initialised.
+    """
     list_of_focii = []
     with open(focus_file) as file:
         reader = csv.reader(file, delimiter=";")
@@ -80,9 +90,16 @@ def setup_minimal_focii(focus_file: str) -> list[Focus]:
         return list_of_focii
 
 
-#RECO: instead of taking the focus string as a parameter read the file to find the valid focus string. Also convert this into a method
-def complete_minimal_focus(course_graph: Graph, in_focus: Focus, focus_file: str):
-    """Mutates in_focus so that it contains its required courses"""
+# RECO: convert this into a method
+def complete_minimal_focus(course_graph: Graph, in_focus: Focus, focus_file: str) -> None:
+    """
+    Mutates in_focus so that it contains its required courses. The function calculates all possible ways to complete a
+    focus.
+    Preconditions:
+    focus_file contains the corresponding in_focus
+    """
+    focus_string = ''
+    # Reads the file to find the initial course requirements
     with open(focus_file) as file:
         reader = csv.reader(file, delimiter=";")
         next(reader)
@@ -101,29 +118,32 @@ def complete_minimal_focus(course_graph: Graph, in_focus: Focus, focus_file: str
                 course_list = tuple(course_graph.courses[c] for c in course if c in course_graph.courses)
                 powerset_so_far.extend(
                     cartesian_product(powerset_so_far, [{course_list}], 2 * req[0] + 1))
-            elif course in course_graph.courses:  # TODO some courses no longer exist in timetable
+            elif course in course_graph.courses:
                 powerset_so_far.extend(
                     cartesian_product(powerset_so_far, [{course_graph.courses[course]}], 2 * req[0] + 1))
-
+        # for paths which have tuples of courses, we create multiple paths for each course in the tuple
         total_paths = []
         for path in powerset_so_far:
             total_paths.extend(multiply_paths(path))
-
-        valid_paths = []  # block cuts down powerset to those meeting credits required
+        # block cuts down powerset to those meeting credits required
+        valid_paths = []
         for path in total_paths:
-            if sum(course.credits for course in path) == req[0] or (
-                    sum(course.credits for course in path) == req[0] + 0.5 and any(
-                'Y' in course.course_code[6] for course in path)):
+            sum_credits = sum(subject.credits for subject in path)
+            contains_y = any('Y' in subject.course_code[6] for subject in path)
+            if sum_credits == req[0] or (sum_credits == req[0] + 0.5 and contains_y):
                 valid_paths.append(path)
         list_reqs.append(valid_paths)
-
+    # takes cartesian product of every requirement
     final_valid_paths = list_reqs[0]
     for i in range(1, len(list_reqs)):
         final_valid_paths = cartesian_product(final_valid_paths, list_reqs[i])
     in_focus.course_reqs = final_valid_paths
 
 
-def multiply_paths(path):
+def multiply_paths(path: set) -> list[set[_Course]]:
+    """
+    A helper function that creates a list of set of courses if there is a tuple of courses in the path.
+    """
     optioned_courses = []
     regular_courses = set()
     for choice in path:
@@ -141,11 +161,28 @@ def multiply_paths(path):
     return total_paths
 
 
-def rank_path(path: set[_Course], completed=None) -> float:
+def rank_path(path: set[_Course], completed: set = None) -> float:
+    """
+    Calculates the number of further credits required to finish a set of courses given the current number of completed
+    courses.
+    """
     if completed is None:
         completed = set()
-    credits = 0.0
+    credits_so_far = 0.0
     for course in path:
         if course not in completed:
-            credits += course.credits
-    return credits
+            credits_so_far += course.credits
+    return credits_so_far
+
+
+if __name__ == '__main__':
+    import doctest
+
+    doctest.testmod()
+    import python_ta
+
+    python_ta.check_all(config={
+        'disable': ['forbidden-IO-function', 'too-many-locals'],
+        'extra-imports': ['course', 'math', 'ast', 'csv', 'CourseGraph'],  # the names (strs) of imported modules
+        'max-line-length': 120
+    })
