@@ -60,23 +60,31 @@ class Graph:
                         self.prereqs.add((self.courses[row['code']], pre_req))
 
 
-def get_schedule(path: set[_Course], completed: set[_Course] = None) -> list[set[_Course]]:
+def get_schedule(path: set[_Course], completed: set[_Course] = None, s: int = 1) -> list[set[_Course]]:
     """
     Generates a schedule to complete a particular path of courses. The function works by recursively finding the set of
-    courses which can be met only using the completed courses.
+    courses which can be met only using the completed courses. Each set in the resulting list of set of courses
+    represents the courses you would be taking in a single semester.
     Preconditions:
     - [course in path for course in completed]
     """
     if completed is None:
         completed = set()
-    completed = {course for course in completed if course in path}
+    completed = {c for c in completed if c in path}
     if completed == path:
         return []
     next_courses = set()
     for course in path:
         if (not course.path_has_prerequisite(path, completed)) and (course not in completed):
-            next_courses.add(course)
-    return [next_courses] + get_schedule(path, completed.union(next_courses))
+            if course.credits == 0.5:
+                next_courses.add(course)
+            elif s % 2 == 1:
+                next_courses.add(course)
+    y_courses = {c for c in next_courses if c.credits == 1.0}
+    if len(y_courses) == 0:
+        return [next_courses] + get_schedule(path, completed.union(next_courses), s + 1)
+    else:
+        return [next_courses, y_courses] + get_schedule(path, completed.union(next_courses), s + 1)
 
 
 if __name__ == '__main__':

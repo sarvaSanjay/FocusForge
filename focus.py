@@ -43,10 +43,14 @@ class Focus:
 
     def get_paths(self, completed: set = None) -> list[set[_Course]]:
         """
-        Get all possible course paths by which you can complete a particular focus.
+        Get all possible course paths by which you can complete a particular focus ranked by minimum credits required to
+        complete them.
         """
         if completed is None:
             completed = set()
+        if len(self.course_reqs) > 50:
+            self.course_reqs.sort(key=lambda x: (rank_path(x, completed), len(x)))
+            self.course_reqs = self.course_reqs[:50]
         total_paths = []
         for reqs in self.course_reqs:
             paths = [set()]
@@ -183,6 +187,6 @@ if __name__ == '__main__':
 
     python_ta.check_all(config={
         'disable': ['forbidden-IO-function', 'too-many-locals'],
-        'extra-imports': ['course', 'math', 'ast', 'csv', 'CourseGraph'],  # the names (strs) of imported modules
+        'extra-imports': ['course', 'math', 'ast', 'csv', 'course_graph'],  # the names (strs) of imported modules
         'max-line-length': 120
     })

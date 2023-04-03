@@ -7,8 +7,8 @@ from course_graph import Graph, get_schedule
 # Web and Internet Technologies
 #
 g = Graph()
-print(g.courses['MAT235Y1'].prereqs)
-focus = setup_minimal_focii('focus-data.csv')[8]
+print(g.courses['CSC457H1'].prereqs)
+focus = setup_minimal_focii('focus-data.csv')[15]
 complete_minimal_focus(g, focus, 'focus-data.csv')
 print(len(focus.course_reqs))
 completed = {g.courses['MGT100H1']}
