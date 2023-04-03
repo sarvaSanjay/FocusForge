@@ -2,33 +2,20 @@
 """This is the Tkinter file for the FocusForge application."""
 
 import csv
-import CourseGraph
 import focus
 from tkinter import *
 from tkinter import ttk
+import CourseGraph
 # from python_ta.contracts import check_contracts
-
-variable = 4
-def make_something(value):
-    global variable
-    variable = value
-    print(variable)
-
 root = Tk()
 root.geometry("500x600")
 root.title("FocusForge")
 root.configure(background="#282634")
 
 listy = set()
-timetable_list = []
 focy = ''
 
 def new_window_compvis():
-    
-
-
-
-    
     window = Toplevel(root)
     window.title("Focus Selector")
     window.geometry("500x600")
@@ -83,7 +70,7 @@ def new_window_tt():
 
 
     button = Button(window, text="1", width=4, height=3, bg="#282620", fg="white",
-                    command= lambda: new_window_compvis(dropdown1.get(), 1))
+                    command= lambda: find_all_subjects(dropdown1.get(),listy))
     button.place(relx=0.35, rely=0.75, anchor=CENTER)
     button = Button(window, text="2", width=4, height=3, bg="#282620", fg="white",
                     command=lambda: new_window_compvis(dropdown1.get(), 2))
@@ -94,39 +81,6 @@ def new_window_tt():
     button = Button(window, text="4", width=4, height=3, bg="#282620", fg="white",
                     command= lambda: new_window_compvis(dropdown1.get(), 4))
     button.place(relx=0.65, rely=0.75, anchor=CENTER)
-
-# @check_contracts
-def new_window_fs():
-    """This function will open the focus selector page."""
-    window = Toplevel(root)
-    window.title("Focus Selector")
-    window.geometry("500x600")
-    window.configure(background="#282634")
-    label = Label(window, text="Focus Selector", bg="#282634", fg="white")
-    label.place(relx=0.5, rely=0.05, anchor=CENTER)
-
-    # create a drop-down menu where you can select multiple options
-    courses = read_packet_csv()
-    dropdown = ttk.Combobox(window, values=courses, state="readonly")
-    dropdown.place(relx=0.5, rely=0.3, anchor=CENTER)
-
-    # create a button which runs the find focus and displays the results as a table (potentially as a new page)
-    button = Button(window, text="Find Focus", width=20, height=3, bg="#282620", fg="white",
-                    command=window.destroy)  # TODO: add a function to this button
-    button.place(relx=0.5, rely=0.8, anchor=CENTER)
-
-    label = Label(window, text="Courses Taken/ want to take:", bg="#282634", fg="white", font=("Helvetica", 12))
-    label.place(relx=0.5, rely=0.45, anchor=CENTER)
-
-    # a button which adds the selected course to the list
-    button = Button(window, text="Add", width=20, height=3, bg="#282620", fg="white",
-                    command=lambda: print_list(listy, dropdown.get(), window=window))
-    button.place(relx=0.5, rely=0.6, anchor=CENTER)
-
-    # create a button to go back to the main window
-    button = Button(window, text="Close", width=20, height=3, bg="#282620", fg="white", command=window.destroy)
-    button.place(relx=0.5, rely=0.9, anchor=CENTER)
-
 
 # @check_contracts
 def create_dropdown(window):
@@ -149,10 +103,12 @@ def print_list(listy, course, window):
 
 def print_focus(fox: str, window):
     """This function will display the list of courses selected by the drop-down menu."""
+    global courses
     if fox != '':
-        focy = fox 
+        focy = fox
         label = Label(window, text=str(focy), bg="#282634", fg="white", font=("Helvetica", 10))
         label.place(relx=0.5, rely=0.28, anchor=CENTER)
+        print(courses)
 
 
 label = Label(root, text="Welcome to FocusForge", bg="#282634", fg="white", font=("Helvetica", 12))
@@ -160,11 +116,7 @@ label.place(relx=0.5, rely=0.07, anchor=CENTER)
 
 # add a button which will open the timetable builder page
 button = Button(root, text="Timetable Builder", width=20, height=3, bg="#282620", fg="white", command=new_window_tt, )
-button.place(relx=0.35, rely=0.2, anchor=CENTER)
-
-# add a button which will open the focus selector page
-button = Button(root, text="Focus selector", width=20, height=3, bg="#282620", fg="white", command=new_window_fs, )
-button.place(relx=0.65, rely=0.2, anchor=CENTER)
+button.place(relx=0.5, rely=0.2, anchor=CENTER)
 
 # add an image under everything and scale it down
 image = PhotoImage(file="logss.png")
@@ -194,4 +146,43 @@ def read_give_names() -> list:
     """
     return[stry.name for stry in focus.setup_minimal_focii('focus-data.csv')]
 
+
+def find_all_subjects(focus_name: str, completed: set):
+    """yum"""
+
+    graph = CourseGraph.Graph()
+    courses = [stry for stry in focus.setup_minimal_focii('focus-data.csv') if stry.name == focus_name][0]
+    focus.complete_minimal_focus(graph,courses,'focus-data.csv')
+    diff_paths = courses.get_paths(completed)
+    subjects_per_sem = CourseGraph.get_schedule(diff_paths[0], completed)
+
+    window = Toplevel(root)
+    window.title("Focus Selector")
+    window.geometry("500x600")
+    window.configure(background="#282634")
+    label = Label(window, text="Focus Selector", bg="#282634", fg="white")
+    label.place(relx=0.5, rely=0.05, anchor=CENTER)
+
+    tree = ttk.Treeview(window, column=("c1", "c2", "c3"), show='headings', height=8)
+    tree.column("# 1", anchor=CENTER)
+    tree.heading("# 1", text="Year to take")
+    tree.column("# 2", anchor=CENTER)
+    tree.heading("# 2", text="Semester")
+    tree.column("# 3", anchor=CENTER)
+    tree.heading("# 3", text="Courses")
+    # Insert the data in Treeview widget
+    for i in range(1, len(subjects_per_sem)):
+        sub_so_far = []
+        if i % 2 == 0:
+            sem = 'Winter'
+        else:
+            sem = 'fall'
+        for subject in subjects_per_sem[i]:
+            sub_so_far.append(subject.course_code)
+            print(sub_so_far)
+        tree.insert('', 'end', text="1", values=(str(i), sem, str(sub_so_far)))
+        i += 1
+    tree.pack()
+
 mainloop()
+

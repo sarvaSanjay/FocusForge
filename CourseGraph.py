@@ -37,12 +37,12 @@ class Graph:
         Preconditions:
         - input_file is a valid csv file that contains course codes, names and prereqs.
         """
-        with open(input_file, 'r') as f:
+        with open(input_file, 'r', encoding='utf8') as f:
             reader = csv.DictReader(f=f, delimiter=';')
             for row in reader:
                 course = _Course(row['code'], row['name'], [])
                 self.courses[row['code']] = course
-        with open(input_file, 'r') as f:
+        with open(input_file, 'r',encoding='utf8') as f:
             reader = csv.DictReader(f=f, delimiter=';')
             for row in reader:
                 pre_requisites = ast.literal_eval(row['pre-requisites'])
