@@ -1,4 +1,12 @@
-"""This is the Tkinter file for the FocusForge application."""
+"""Module Description
+===============================
+This Python module is the main module and User Interface for the FocusForge application.
+
+Copyright and Usage Information
+===============================
+This file is provided under the Mozilla Public License 2.0
+This file is Copyright (c) 2023 Raahil Vora, Sarva Sanjay, and Ansh Prasad."""
+
 
 from tkinter import *
 from tkinter import ttk
