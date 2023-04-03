@@ -1,86 +1,100 @@
-
 """This is the Tkinter file for the FocusForge application."""
 
-import csv
-import focus
 from tkinter import *
 from tkinter import ttk
+import csv
+from typing import Any
+
 import course_graph
-# from python_ta.contracts import check_contracts
+import focus
+
+# creates the main screen to display
 root = Tk()
 root.geometry("500x600")
 root.title("FocusForge")
 root.configure(background="#282634")
-
+root.resizable(False, False)
 listy = set()
-focy = ''
 
 
-# @check_contracts
-def new_window_tt():
+def new_window_tt() -> None:
     """This function will open the Timetable builder page."""
 
+    # creates the timetable frame to display
     window = Toplevel(root)
     window.title("Timetable Builder")
     window.geometry("500x600")
     window.configure(background="#282634")
+    window.resizable(False, False)
 
     # create a label to tell the user where they are
-    label = Label(window, text="Timetable builder", bg="#282634", fg="white", font=("Helvetica", 12))
-    label.place(relx=0.5, rely=0.1, anchor=CENTER)
+    label_timetable = Label(window, text="Timetable builder", bg="#282634", fg="white", font=("Helvetica", 12))
+    label_timetable.place(relx=0.5, rely=0.05, anchor=CENTER)
 
-    label = Label(window, text="Courses Taken:", bg="#282634", fg="white", font=("Helvetica", 12))
-    label.place(relx=0.5, rely=0.25, anchor=CENTER)
+    # tells user to add their completed course
+    label_course = Label(window, text="1. Select completed courses", bg="#282634", fg="white", font=("Helvetica", 11))
+    label_course.place(relx=0.5, rely=0.1, anchor=CENTER)
+
+    # shows the courses taken below
+    label_course2 = Label(window, text="Courses Taken:", bg="#282634", fg="white", font=("Helvetica", 10))
+    label_course2.place(relx=0.5, rely=0.22, anchor=CENTER)
+
     # create a drop-down menu
-    courses = read_packet_csv("Bookyums.csv")
-    dropdown = ttk.Combobox(window, values=courses, state="readonly")
-    dropdown.place(relx=0.5, rely=0.2, anchor=CENTER)
+    courses = read_csv("course-data.csv")
+    dropdown = ttk.Combobox(window, values=courses)
+    dropdown.place(relx=0.5, rely=0.16, anchor=CENTER)
 
     # a button to go back to the main window
-    button = Button(window, text="Close", width=20, height=3, bg="#282620", fg="white", command=window.destroy)
-    button.place(relx=0.5, rely=0.9, anchor=CENTER)
+    button_close = Button(window, text="Close", width=20, height=3, bg="#282620", fg="white", command=window.destroy)
+    button_close.place(relx=0.5, rely=0.9, anchor=CENTER)
 
     # a button which adds the selected course to the list
-    button = Button(window, text="Add", width=20, height=2, bg="#282620", fg="white",
-                    command= lambda: print_list(listy, dropdown.get(), window=window))
-    button.place(relx=0.5, rely=0.35, anchor=CENTER)
+    button_add = Button(window, text="Add", width=5, height=2, bg="#282620", fg="white",
+                        command=lambda: print_list(dropdown.get(), window=window))
+    button_add.place(relx=0.7, rely=0.16, anchor=CENTER)
 
-    dropdown1 = ttk.Combobox(window, values= read_give_names(), state="readonly")
+    # tells the user to select focus
+    label_focus = Label(window, text="2. Select Focus", bg="#282634", fg="white", font=("Helvetica", 11))
+    label_focus.place(relx=0.5, rely=0.4, anchor=CENTER)
+
+    # a button which adds the selected course to the list
+    dropdown1 = ttk.Combobox(window, values=read_give_names(), width=60)
     dropdown1.place(relx=0.5, rely=0.45, anchor=CENTER)
-    button = Button(window, text="Select focus", width=20, height=3, bg="#282620", fg="white",
-                    command= lambda: print_focus(dropdown1.get(), window=window))
-    button.place(relx=0.5, rely=0.6, anchor=CENTER)
 
-    button = Button(window, text="1", width=4, height=3, bg="#282620", fg="white",
-                    command= lambda: find_all_subjects(dropdown1.get(),listy))
-    button.place(relx=0.35, rely=0.75, anchor=CENTER)
-    button = Button(window, text="2", width=4, height=3, bg="#282620", fg="white",
-                    command=lambda: find_all_subjects(dropdown1.get(),listy))
-    button.place(relx=0.45, rely=0.75, anchor=CENTER)
-    button = Button(window, text="3", width=4, height=3, bg="#282620", fg="white",
-                    command=lambda: find_all_subjects(dropdown1.get(),listy))
-    button.place(relx=0.55, rely=0.75, anchor=CENTER)
-    button = Button(window, text="4", width=4, height=3, bg="#282620", fg="white",
-                    command= lambda: find_all_subjects(dropdown1.get(),listy))
-    button.place(relx=0.65, rely=0.75, anchor=CENTER)
+    # tells user to ask how many years left
+    label_year = Label(window, text="3. Years of study left:", bg="#282634", fg="white", font=("Helvetica", 11))
+    label_year.place(relx=0.5, rely=0.6, anchor=CENTER)
+
+    # Button which generates timetable based on courses taken and focus selected for 1 year left
+    button_1 = Button(window, text="1", width=4, height=3, bg="#282620", fg="white",
+                      command=lambda: find_all_subjects(dropdown1.get(), listy, 4))
+    button_1.place(relx=0.35, rely=0.7, anchor=CENTER)
+
+    # Button which generates timetable based on courses taken and focus selected for 2 years left
+    button_2 = Button(window, text="2", width=4, height=3, bg="#282620", fg="white",
+                      command=lambda: find_all_subjects(dropdown1.get(), listy, 3))
+    button_2.place(relx=0.45, rely=0.7, anchor=CENTER)
+
+    # Button which generates timetable based on courses taken and focus selected for 3 years left
+    button_3 = Button(window, text="3", width=4, height=3, bg="#282620", fg="white",
+                      command=lambda: find_all_subjects(dropdown1.get(), listy, 2))
+    button_3.place(relx=0.55, rely=0.7, anchor=CENTER)
+
+    # Button which generates timetable based on courses taken and focus selected for 4 years left
+    button_4 = Button(window, text="4", width=4, height=3, bg="#282620", fg="white",
+                      command=lambda: find_all_subjects(dropdown1.get(), listy, 1))
+    button_4.place(relx=0.65, rely=0.7, anchor=CENTER)
 
 
-# @check_contracts
-def print_list(listy, course, window):
+def print_list(course: str, window: Any) -> None:
     """This function will display the list of courses selected by the drop-down menu."""
     if course != '':
         listy.add(course)
-        label = Label(window, text=str(listy), bg="#282634", fg="white", font=("Helvetica", 10))
-        label.place(relx=0.5, rely=0.28, anchor=CENTER)
-
-def print_focus(fox: str, window):
-    """This function will display the list of courses selected by the drop-down menu."""
-    if fox != '':
-        focy = fox
-        label = Label(window, text=str(focy), bg="#282634", fg="white", font=("Helvetica", 10))
-        label.place(relx=0.5, rely=0.28, anchor=CENTER)
+        label_courses = Label(window, text=str(listy), bg="#282634", fg="white", font=("Helvetica", 10))
+        label_courses.place(relx=0.5, rely=0.26, anchor=CENTER)
 
 
+# Title for the page
 label = Label(root, text="Welcome to FocusForge", bg="#282634", fg="white", font=("Helvetica", 12))
 label.place(relx=0.5, rely=0.07, anchor=CENTER)
 
@@ -95,67 +109,55 @@ label = Label(root, image=image, borderwidth=0)
 label.place(relx=0.5, rely=0.5, anchor=CENTER)
 
 
-
-# @check_contracts
-def read_packet_csv(csv_file: str) -> list:
+def read_csv(csv_file: str) -> list:
     """Read the given csv file and return a list of the first item in each row.
     """
-    with open(csv_file) as filey:
+    with open(csv_file, encoding='utf8') as filey:
         csvy = csv.reader(filey, delimiter=';')
         first = True
-        packets = []
-        for network in csvy:
+        courses = []
+        for course in csvy:
             if first:
                 first = False
             else:
-                packets.append(network[0])
-    return packets
+                courses.append(course[0])
+    return courses
 
 
 def read_give_names() -> list:
-    """Read the given csv file and return a list of the first item in each row.
+    """Read the given csv file and return a list of the first item in each row for focus specifically.
     """
-    return[stry.name for stry in focus.setup_minimal_focii('focus-data.csv')]
+    return [stry.name for stry in focus.setup_minimal_focii('focus-data.csv')]
 
 
-def find_all_subjects(focus_name: str, completed: set):
-    """yum"""
+def find_all_subjects(focus_name: str, completed: set, num: int) -> None:
+    """This function will generate a timetable based on the courses taken and the focus selected."""
+
+    # determines the path and schedule per semester
     graph = course_graph.Graph()
     completed_course = {graph.courses[course] for course in graph.courses if course in completed}
-    print(completed_course)
     courses = [stry for stry in focus.setup_minimal_focii('focus-data.csv') if stry.name == focus_name][0]
-    focus.complete_minimal_focus(graph,courses,'focus-data.csv')
+    focus.complete_minimal_focus(graph, courses, 'focus-data.csv')
     diff_paths = courses.get_paths(completed_course)
     subjects_per_sem = course_graph.get_schedule(diff_paths[0], completed_course)
 
+    # creates the actual frame to display the window
     window = Toplevel(root)
-    window.title("Focus Selector")
-    window.geometry("500x600")
+    window.title("Generate timetable for " + focus_name)
+    window.state('zoomed')
     window.configure(background="#282634")
-    label = Label(window, text="Focus Selector", bg="#282634", fg="white")
-    label.place(relx=0.5, rely=0.05, anchor=CENTER)
 
-    tree = ttk.Treeview(window, column=("c1", "c2", "c3"), show='headings', height=8)
+    # creates the base of the table
+    tree = ttk.Treeview(window, column=("c1", "c2", "c3"), show='headings', height=100)  # not error
     tree.column("# 1", anchor=CENTER)
     tree.heading("# 1", text="Year to take")
     tree.column("# 2", anchor=CENTER)
     tree.heading("# 2", text="Semester")
     tree.column("# 3", anchor=CENTER)
     tree.heading("# 3", text="Courses")
-    # Insert the data in Treeview widget
-    # for i in range(1, len(subjects_per_sem)):
-    #     sub_so_far = []
-    #     if i % 2 == 0:
-    #         sem = 'Winter'
-    #     else:
-    #         sem = 'fall'
-    #     for subject in subjects_per_sem[i]:
-    #         sub_so_far.append(subject.course_code)
-    #         print(sub_so_far)
-    #     tree.insert('', 'end', text="1", values=(str(i), sem, str(sub_so_far)))
-    #     i += 1
-    # tree.pack()
-    i = 1
+
+    # add each semester to the table by iterating through the list
+    i = num
     j = 1
     for year in subjects_per_sem:
         for sub in year:
@@ -164,9 +166,22 @@ def find_all_subjects(focus_name: str, completed: set):
             else:
                 sem = 'Fall'
             tree.insert("", "end", values=(i, sem, sub.course_code))
-        if j %2 == 0:
+        if j % 2 == 0:
             i += 1
         j += 1
     tree.pack()
 
+
 mainloop()
+
+if __name__ == '__main__':
+    import python_ta
+
+    python_ta.check_all(config={
+        'disable': ['forbidden-IO-function', 'forbidden-top-level-code', 'wildcard-import',
+                    'forbidden-global-variables'],
+        # these are all disabled becuase of use of tkinter and use of print statements to display.
+        'extra-imports': ['course', 'tkinter', 'focus', 'csv', 'course_graph', 'typing'],
+        # the names (strs) of imported modules
+        'max-line-length': 120
+    })
