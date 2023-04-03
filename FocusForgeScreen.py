@@ -139,7 +139,12 @@ def find_all_subjects(focus_name: str, completed: set, num: int) -> None:
     courses = [stry for stry in focus.setup_minimal_focii('focus-data.csv') if stry.name == focus_name][0]
     focus.complete_minimal_focus(graph, courses, 'focus-data.csv')
     diff_paths = courses.get_paths(completed_course)
-    subjects_per_sem = course_graph.get_schedule(diff_paths[0], completed_course)
+    diff_paths = courses.get_paths(completed_course)
+    best_path = diff_paths[0]
+    for path in diff_paths:
+        if len(path) < len(best_path):
+            best_path = path
+    subjects_per_sem = course_graph.get_schedule(best_path, completed_course)
 
     # creates the actual frame to display the window
     window = Toplevel(root)
