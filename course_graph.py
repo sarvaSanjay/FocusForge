@@ -69,6 +69,7 @@ def get_schedule(path: set[_Course], completed: set[_Course] = None) -> list[set
     """
     if completed is None:
         completed = set()
+    completed = {course for course in completed if course in path}
     if completed == path:
         return []
     next_courses = set()
