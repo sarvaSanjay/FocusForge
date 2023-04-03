@@ -5,10 +5,11 @@ from CourseGraph import Graph, get_schedule
 # Web and Internet Technologies
 #
 g = Graph()
+print(g.courses['STA237H1'].prereqs)
 focus = setup_minimal_focii('focus-data.csv')[8]
 complete_minimal_focus(g, focus, 'focus-data.csv')
 print(focus.course_reqs)
-completed = {g.courses['CSC110Y1'], g.courses['CSC111H1'], g.courses['MAT137Y1']}
+completed = set()
 paths = focus.get_paths(completed=completed)
 print(len(paths))
 i = 0

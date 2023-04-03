@@ -1,6 +1,4 @@
 from __future__ import annotations
-import math
-import csv
 
 
 class _Course:
@@ -17,6 +15,7 @@ class _Course:
         can be met.
     - credits:
         Number of credits that a course is worth. It can either be 0.5 or 1.0.
+
     Representation Invariants
     - len(self.course_code) == 8
     - len(self.name) != 0
