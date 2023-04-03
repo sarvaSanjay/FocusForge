@@ -7,7 +7,6 @@ Copyright and Usage Information
 This file is provided under the Mozilla Public License 2.0
 This file is Copyright (c) 2023 Raahil Vora, Sarva Sanjay, and Ansh Prasad."""
 
-
 from tkinter import *
 from tkinter import ttk
 import csv
@@ -138,6 +137,9 @@ def read_give_names() -> list:
     return [stry.name for stry in focus.setup_minimal_focii('focus-data.csv')]
 
 
+k = 0
+
+
 def find_all_subjects(focus_name: str, completed: set, num: int) -> None:
     """This function will generate a timetable based on the courses taken and the focus selected."""
 
@@ -148,10 +150,16 @@ def find_all_subjects(focus_name: str, completed: set, num: int) -> None:
     focus.complete_minimal_focus(graph, courses, 'focus-data.csv')
     diff_paths = courses.get_paths(completed_course)
     best_path = diff_paths[0]
-    for path in diff_paths:
-        if len(path) < len(best_path):
-            best_path = path
-    subjects_per_sem = course_graph.get_schedule(best_path, completed_course)
+
+    # selects the shortest path for first iteration, then shows all viable paths when 'next' button is pressed
+    global k
+    if k == 0:
+        for path in diff_paths:
+            if len(path) < len(best_path):
+                best_path = path
+        subjects_per_sem = course_graph.get_schedule(best_path, completed_course)
+    else:
+        subjects_per_sem = course_graph.get_schedule(diff_paths[k], completed_course)
 
     # creates the actual frame to display the window
     window = Toplevel(root)
@@ -182,6 +190,11 @@ def find_all_subjects(focus_name: str, completed: set, num: int) -> None:
             i += 1
         j += 1
     tree.pack()
+    k += 1
+    print(k)
+    button_next = Button(window, text="next", width=20, height=3, bg="#282620", fg="white",
+                         command=lambda: find_all_subjects(focus_name, completed_course, num))
+    button_next.place(relx=0.5, rely=0.8, anchor=CENTER)
 
 
 mainloop()
