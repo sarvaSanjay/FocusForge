@@ -191,7 +191,6 @@ def find_all_subjects(focus_name: str, completed: set, num: int) -> None:
         j += 1
     tree.pack()
     k += 1
-    print(k)
     button_next = Button(window, text="next", width=20, height=3, bg="#282620", fg="white",
                          command=lambda: find_all_subjects(focus_name, completed_course, num))
     button_next.place(relx=0.5, rely=0.8, anchor=CENTER)
